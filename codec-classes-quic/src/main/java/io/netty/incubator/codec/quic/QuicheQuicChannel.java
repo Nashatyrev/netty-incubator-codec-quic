@@ -42,6 +42,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import io.netty.util.concurrent.ImmediateExecutor;
 import io.netty.util.concurrent.Promise;
+import io.netty.util.concurrent.Ticker;
 import io.netty.util.internal.StringUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -1451,7 +1452,8 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
 
     private long eventLoopInstantNanos() {
         assert eventLoop().inEventLoop();
-        return TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+        Ticker ticker = eventLoop().ticker();
+        return ticker.nanoTime();
     }
 
     /**
