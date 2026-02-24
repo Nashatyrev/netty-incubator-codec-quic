@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class to handle access to {@code quiche_send_info}.
@@ -40,8 +39,6 @@ final class QuicheSendInfo {
             return new byte[SockaddrIn.IPV6_ADDRESS_LENGTH];
         }
     };
-
-    private static final byte[] TIMESPEC_ZEROOUT = new byte[Quiche.SIZEOF_TIMESPEC];
 
     private QuicheSendInfo() { }
 
@@ -110,9 +107,8 @@ final class QuicheSendInfo {
         try {
             setAddress(memory, Quiche.QUICHE_SEND_INFO_OFFSETOF_FROM, Quiche.QUICHE_SEND_INFO_OFFSETOF_FROM_LEN, from);
             setAddress(memory, Quiche.QUICHE_SEND_INFO_OFFSETOF_TO, Quiche.QUICHE_SEND_INFO_OFFSETOF_TO_LEN, to);
-            // Zero out the timespec.
-            memory.position(position + Quiche.QUICHE_SEND_INFO_OFFSETOF_AT);
-            memory.put(TIMESPEC_ZEROOUT);
+            // quiche fork uses uint64_t nanoseconds-from-epoch for "at".
+            Quiche.setPrimitiveValue(memory, position + Quiche.QUICHE_SEND_INFO_OFFSETOF_AT, Long.BYTES, 0);
         } finally {
             memory.position(position);
         }
@@ -150,11 +146,7 @@ final class QuicheSendInfo {
      * @param memory the memory of {@code quiche_send_info}.
      */
     static long getAtNanos(ByteBuffer memory) {
-        long sec = Quiche.getPrimitiveValue(memory, Quiche.QUICHE_SEND_INFO_OFFSETOF_AT +
-                Quiche.TIMESPEC_OFFSETOF_TV_SEC, Quiche.SIZEOF_TIME_T);
-        long nsec = Quiche.getPrimitiveValue(memory, Quiche.QUICHE_SEND_INFO_OFFSETOF_AT +
-                Quiche.TIMESPEC_OFFSETOF_TV_SEC, Quiche.SIZEOF_LONG);
-        return TimeUnit.SECONDS.toNanos(sec) + nsec;
+        return Quiche.getPrimitiveValue(memory, Quiche.QUICHE_SEND_INFO_OFFSETOF_AT, Long.BYTES);
     }
 
     /**
