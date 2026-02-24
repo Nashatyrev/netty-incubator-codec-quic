@@ -394,7 +394,7 @@ static jlong netty_quiche_conn_new_with_tls(JNIEnv* env, jclass clazz, jlong sci
     }
     const struct sockaddr *local_pointer = (const struct sockaddr*) local;
     const struct sockaddr *peer_pointer = (const struct sockaddr*) peer;
-    quiche_conn *conn = quiche_conn_new_with_tls((const uint8_t *) scid, (size_t) scid_len,
+    quiche_conn *conn = quiche_conn_new_with_tls_at((const uint8_t *) scid, (size_t) scid_len,
                                  odcid_pointer, (size_t) odcid_len,
                                  local_pointer, (socklen_t) local_len,
                                  peer_pointer, (socklen_t) peer_len,
@@ -416,7 +416,7 @@ static jlong netty_quiche_conn_new_with_tls_and_client_dcid(JNIEnv* env, jclass 
     }
     const struct sockaddr *local_pointer = (const struct sockaddr*) local;
     const struct sockaddr *peer_pointer = (const struct sockaddr*) peer;
-    quiche_conn *conn = quiche_conn_new_with_tls_and_client_dcid((const uint8_t *) scid, (size_t) scid_len,
+    quiche_conn *conn = quiche_conn_new_with_tls_and_client_dcid_at((const uint8_t *) scid, (size_t) scid_len,
                                  odcid_pointer, (size_t) odcid_len,
                                  local_pointer, (socklen_t) local_len,
                                  peer_pointer, (socklen_t) peer_len,
@@ -469,13 +469,13 @@ static jbyteArray netty_quiche_conn_destination_id(JNIEnv* env, jclass clazz, jl
 
 static jint netty_quiche_conn_recv(JNIEnv* env, jclass clazz, jlong conn, jlong buf, jint buf_len, jlong info,
                                    jlong instant_nanos) {
-    return (jint) quiche_conn_recv((quiche_conn *) conn, (uint8_t *) buf, (size_t) buf_len,
+    return (jint) quiche_conn_recv_at((quiche_conn *) conn, (uint8_t *) buf, (size_t) buf_len,
                                    (quiche_recv_info*) info, instant_nanos);
 }
 
 static jint netty_quiche_conn_send(JNIEnv* env, jclass clazz, jlong conn, jlong out, jint out_len, jlong info,
                                    jlong instant_nanos) {
-    return (jint) quiche_conn_send((quiche_conn *) conn, (uint8_t *) out, (size_t) out_len,
+    return (jint) quiche_conn_send_at((quiche_conn *) conn, (uint8_t *) out, (size_t) out_len,
                                    (quiche_send_info*) info, instant_nanos);
 }
 
@@ -624,7 +624,7 @@ static jlong netty_quiche_conn_timeout_as_nanos(JNIEnv* env, jclass clazz, jlong
 }
 
 static void netty_quiche_conn_on_timeout(JNIEnv* env, jclass clazz, jlong conn, jlong instant_nanos) {
-    quiche_conn_on_timeout((quiche_conn *) conn, instant_nanos);
+    quiche_conn_on_timeout_at((quiche_conn *) conn, instant_nanos);
 }
 
 static jlong netty_quiche_conn_readable(JNIEnv* env, jclass clazz, jlong conn) {
