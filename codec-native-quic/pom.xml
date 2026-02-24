@@ -852,6 +852,20 @@
                         </if>
                       </else>
                     </if>
+                    <if>
+                      <and>
+                        <not>
+                          <equals arg1="${os.detected.name}" arg2="windows" />
+                        </not>
+                        <available file="${quicheBuildDir}/${libquiche}" />
+                      </and>
+                      <then>
+                        <!-- Ensure the static archive has an index for the linker. -->
+                        <exec executable="ranlib" failonerror="true" dir="${quicheSourceDir}" resolveexecutable="true">
+                          <arg value="${quicheBuildDir}/${libquiche}" />
+                        </exec>
+                      </then>
+                    </if>
                     <!-- Only copy the libs and header files we need -->
                     <mkdir dir="${quicheHomeDir}" />
                     <copy file="${quicheBuildDir}/${libquiche}" todir="${quicheHomeBuildDir}/" />
