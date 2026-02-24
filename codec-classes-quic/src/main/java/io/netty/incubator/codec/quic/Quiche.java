@@ -336,12 +336,12 @@ final class Quiche {
     static native long quiche_conn_new_with_tls(long scidAddr, int scidLen, long odcidAddr, int odcidLen,
                                                 long localAddr, int localLen,
                                                 long peerAddr, int peerLen,
-                                                long configAddr, long ssl, boolean isServer);
+                                                long configAddr, long ssl, boolean isServer, long instantNanos);
 
     static native long quiche_conn_new_with_tls_and_client_dcid(long scidAddr, int scidLen, long odcidAddr,
                                                                 int odcidLen, long localAddr, int localLen,
                                                                 long peerAddr, int peerLen,
-                                                                long configAddr, long ssl);
+                                                                long configAddr, long ssl, long instantNanos);
     /**
      * See <a href="https://github.com/cloudflare/quiche/blob/master/include/quiche.h#L248">
      *     quiche_conn_set_qlog_path</a>.

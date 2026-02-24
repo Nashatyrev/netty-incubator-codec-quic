@@ -386,13 +386,13 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                             -1, -1,
                             Quiche.memoryAddressWithPosition(fromSockaddrMemory), fromSockaddrLen,
                             Quiche.memoryAddressWithPosition(toSockaddrMemory), toSockaddrLen,
-                            configAddr, ssl, false);
+                            configAddr, ssl, false, eventLoopInstantNanos());
                 } else {
                     return Quiche.quiche_conn_new_with_tls_and_client_dcid(localIdMemoryAddress, localIdLength,
                             Quiche.readerMemoryAddress(remoteIdBuffer), remoteIdBuffer.readableBytes(),
                             Quiche.memoryAddressWithPosition(fromSockaddrMemory), fromSockaddrLen,
                             Quiche.memoryAddressWithPosition(toSockaddrMemory), toSockaddrLen,
-                            configAddr, ssl);
+                            configAddr, ssl, eventLoopInstantNanos());
                 }
             });
             if (connection == null) {

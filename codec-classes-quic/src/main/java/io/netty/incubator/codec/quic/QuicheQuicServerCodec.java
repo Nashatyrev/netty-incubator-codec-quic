@@ -253,6 +253,7 @@ final class QuicheQuicServerCodec extends QuicheQuicCodec {
         }
 
         QuicheQuicSslEngine quicSslEngine = (QuicheQuicSslEngine) engine;
+        final long instantNanos = eventLoopInstantNanos(ctx);
         QuicheQuicConnection connection = quicSslEngine.createConnection(ssl -> {
             ByteBuffer localAddrMemory = recipientSockaddrMemory.internalNioBuffer(0, recipientSockaddrMemory.capacity());
             int localLen = SockaddrIn.setAddress(localAddrMemory, recipient);
@@ -262,7 +263,7 @@ final class QuicheQuicServerCodec extends QuicheQuicCodec {
             return Quiche.quiche_conn_new_with_tls(scidAddr, scidLen, ocidAddr, ocidLen,
                     Quiche.memoryAddressWithPosition(localAddrMemory), localLen,
                     Quiche.memoryAddressWithPosition(peerAddrMemory), peerLen,
-                    config.nativeAddress(), ssl, true);
+                    config.nativeAddress(), ssl, true, instantNanos);
         });
         if (connection  == null) {
             channel.unsafe().closeForcibly();
@@ -284,5 +285,10 @@ final class QuicheQuicServerCodec extends QuicheQuicCodec {
                                       ByteBuf recipientSockaddrMemory, Consumer<QuicheQuicChannel> freeTask,
                                       int localConnIdLength, QuicheConfig config, ChannelPromise promise) {
         promise.setFailure(new UnsupportedOperationException());
+    }
+
+    private long eventLoopInstantNanos(ChannelHandlerContext ctx) {
+        long eventLoopNanos = ctx.channel().eventLoop().ticker().nanoTime();
+        return eventLoopNanos;
     }
 }
