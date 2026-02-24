@@ -351,12 +351,12 @@ final class Quiche {
     /**
      * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L249">quiche_conn_recv</a>.
      */
-    static native int quiche_conn_recv(long connAddr, long bufAddr, int bufLen, long infoAddr);
+    static native int quiche_conn_recv(long connAddr, long bufAddr, int bufLen, long infoAddr, long instantNanos);
 
     /**
      * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L262">quiche_conn_send</a>.
      */
-    static native int quiche_conn_send(long connAddr, long outAddr, int outLen, long infoAddr);
+    static native int quiche_conn_send(long connAddr, long outAddr, int outLen, long infoAddr, long instantNanos);
 
     /**
      * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L373">quiche_conn_free</a>.
@@ -491,7 +491,7 @@ final class Quiche {
      * See
      * <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L294">quiche_conn_on_timeout</a>.
      */
-    static native void quiche_conn_on_timeout(long connAddr);
+    static native void quiche_conn_on_timeout(long connAddr, long instantNanos);
 
     /**
      * See

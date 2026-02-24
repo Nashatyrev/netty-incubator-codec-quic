@@ -1230,6 +1230,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
         if (conn.isClosed()) {
             return SendResult.NONE;
         }
+        long instantNanos = eventLoopInstantNanos();
         List<ByteBuf> bufferList = new ArrayList<>(segmentedDatagramPacketAllocator.maxNumSegments());
         long connAddr = conn.address();
         int maxDatagramSize = Quiche.quiche_conn_max_send_udp_payload_size(connAddr);
@@ -1246,7 +1247,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                 int writerIndex = out.writerIndex();
                 int written = Quiche.quiche_conn_send(
                         connAddr, Quiche.writerMemoryAddress(out), out.writableBytes(),
-                        Quiche.memoryAddressWithPosition(sendInfo));
+                        Quiche.memoryAddressWithPosition(sendInfo), instantNanos);
                 if (written == 0) {
                     out.release();
                     // No need to create a new datagram packet. Just try again.
@@ -1370,6 +1371,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
         if (conn.isClosed()) {
             return SendResult.NONE;
         }
+        long instantNanos = eventLoopInstantNanos();
         long connAddr = conn.address();
         SendResult sendResult = SendResult.NONE;
         boolean close = false;
@@ -1383,7 +1385,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
 
             int written = Quiche.quiche_conn_send(
                     connAddr, Quiche.writerMemoryAddress(out), out.writableBytes(),
-                    Quiche.memoryAddressWithPosition(sendInfo));
+                    Quiche.memoryAddressWithPosition(sendInfo), instantNanos);
 
             if (written == 0) {
                 // No need to create a new datagram packet. Just release and try again.
@@ -1445,6 +1447,11 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
             return 8;
         }
         return len;
+    }
+
+    private long eventLoopInstantNanos() {
+        assert eventLoop().inEventLoop();
+        return TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
     }
 
     /**
@@ -1658,7 +1665,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                     do  {
                         // Call quiche_conn_recv(...) until we consumed all bytes or we did receive some error.
                         int res = Quiche.quiche_conn_recv(conn.address(), memoryAddress, bufferReadable,
-                                Quiche.memoryAddressWithPosition(recvInfo));
+                                Quiche.memoryAddressWithPosition(recvInfo), eventLoopInstantNanos());
                         final boolean done;
                         if (res < 0) {
                             done = true;
@@ -2032,7 +2039,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                 long connAddr = conn.address();
                 timeoutFuture = null;
                 // Notify quiche there was a timeout.
-                Quiche.quiche_conn_on_timeout(connAddr);
+                Quiche.quiche_conn_on_timeout(connAddr, eventLoopInstantNanos());
                 if (!freeIfClosed()) {
                     // We need to call connectionSend when a timeout was triggered.
                     // See https://docs.rs/quiche/0.6.0/quiche/struct.Connection.html#method.send.

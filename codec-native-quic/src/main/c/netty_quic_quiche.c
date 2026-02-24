@@ -461,12 +461,16 @@ static jbyteArray netty_quiche_conn_destination_id(JNIEnv* env, jclass clazz, jl
     return to_byte_array(env, id, len);
 }
 
-static jint netty_quiche_conn_recv(JNIEnv* env, jclass clazz, jlong conn, jlong buf, jint buf_len, jlong info) {
-    return (jint) quiche_conn_recv((quiche_conn *) conn, (uint8_t *) buf, (size_t) buf_len, (quiche_recv_info*) info);
+static jint netty_quiche_conn_recv(JNIEnv* env, jclass clazz, jlong conn, jlong buf, jint buf_len, jlong info,
+                                   jlong instant_nanos) {
+    return (jint) quiche_conn_recv((quiche_conn *) conn, (uint8_t *) buf, (size_t) buf_len,
+                                   (quiche_recv_info*) info, instant_nanos);
 }
 
-static jint netty_quiche_conn_send(JNIEnv* env, jclass clazz, jlong conn, jlong out, jint out_len, jlong info) {
-    return (jint) quiche_conn_send((quiche_conn *) conn, (uint8_t *) out, (size_t) out_len, (quiche_send_info*) info);
+static jint netty_quiche_conn_send(JNIEnv* env, jclass clazz, jlong conn, jlong out, jint out_len, jlong info,
+                                   jlong instant_nanos) {
+    return (jint) quiche_conn_send((quiche_conn *) conn, (uint8_t *) out, (size_t) out_len,
+                                   (quiche_send_info*) info, instant_nanos);
 }
 
 static void netty_quiche_conn_free(JNIEnv* env, jclass clazz, jlong conn) {
@@ -613,8 +617,8 @@ static jlong netty_quiche_conn_timeout_as_nanos(JNIEnv* env, jclass clazz, jlong
     return quiche_conn_timeout_as_nanos((quiche_conn *) conn);
 }
 
-static void netty_quiche_conn_on_timeout(JNIEnv* env, jclass clazz, jlong conn) {
-    quiche_conn_on_timeout((quiche_conn *) conn);
+static void netty_quiche_conn_on_timeout(JNIEnv* env, jclass clazz, jlong conn, jlong instant_nanos) {
+    quiche_conn_on_timeout((quiche_conn *) conn, instant_nanos);
 }
 
 static jlong netty_quiche_conn_readable(JNIEnv* env, jclass clazz, jlong conn) {
@@ -1200,8 +1204,8 @@ static const JNINativeMethod fixed_method_table[] = {
   { "quiche_conn_destination_id", "(J)[B", (void *) netty_quiche_conn_destination_id },
   { "quiche_conn_new_with_tls", "(JIJIJIJIJJZ)J", (void *) netty_quiche_conn_new_with_tls },
   { "quiche_conn_new_with_tls_and_client_dcid", "(JIJIJIJIJJ)J", (void *) netty_quiche_conn_new_with_tls_and_client_dcid },
-  { "quiche_conn_recv", "(JJIJ)I", (void *) netty_quiche_conn_recv },
-  { "quiche_conn_send", "(JJIJ)I", (void *) netty_quiche_conn_send },
+  { "quiche_conn_recv", "(JJIJJ)I", (void *) netty_quiche_conn_recv },
+  { "quiche_conn_send", "(JJIJJ)I", (void *) netty_quiche_conn_send },
   { "quiche_conn_free", "(J)V", (void *) netty_quiche_conn_free },
   { "quiche_conn_peer_error0", "(J)[Ljava/lang/Object;", (void *) netty_quiche_conn_peer_error0 },
   { "quiche_conn_peer_streams_left_bidi", "(J)J", (void *) netty_quiche_conn_peer_streams_left_bidi },
@@ -1220,7 +1224,7 @@ static const JNINativeMethod fixed_method_table[] = {
   { "quiche_conn_stats", "(J)[J", (void *) netty_quiche_conn_stats },
   { "quiche_conn_peer_transport_params", "(J)[J", (void *) netty_quiche_conn_peer_transport_params },
   { "quiche_conn_timeout_as_nanos", "(J)J", (void *) netty_quiche_conn_timeout_as_nanos },
-  { "quiche_conn_on_timeout", "(J)V", (void *) netty_quiche_conn_on_timeout },
+  { "quiche_conn_on_timeout", "(JJ)V", (void *) netty_quiche_conn_on_timeout },
   { "quiche_conn_readable", "(J)J", (void *) netty_quiche_conn_readable },
   { "quiche_conn_writable", "(J)J", (void *) netty_quiche_conn_writable },
   { "quiche_stream_iter_free", "(J)V", (void *) netty_quiche_stream_iter_free },
