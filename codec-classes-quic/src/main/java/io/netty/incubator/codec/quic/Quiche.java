@@ -331,13 +331,18 @@ final class Quiche {
                                    int newScidLen, long tokenAddr, int tokenLen, int version, long outAddr, int outLen);
 
     /**
-     * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L229">quiche_conn_new_with_tls</a>.
+     * See <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L344">
+     *     quiche_conn_new_with_tls_at</a>.
      */
     static native long quiche_conn_new_with_tls(long scidAddr, int scidLen, long odcidAddr, int odcidLen,
                                                 long localAddr, int localLen,
                                                 long peerAddr, int peerLen,
                                                 long configAddr, long ssl, boolean isServer, long instantNanos);
 
+    /**
+     * See <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L359">
+     *     quiche_conn_new_with_tls_and_client_dcid_at</a>.
+     */
     static native long quiche_conn_new_with_tls_and_client_dcid(long scidAddr, int scidLen, long odcidAddr,
                                                                 int odcidLen, long localAddr, int localLen,
                                                                 long peerAddr, int peerLen,
@@ -349,12 +354,14 @@ final class Quiche {
     static native boolean quiche_conn_set_qlog_path(long connAddr, String path, String logTitle, String logDescription);
 
     /**
-     * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L249">quiche_conn_recv</a>.
+     * See <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L402">
+     *     quiche_conn_recv_at</a>.
      */
     static native int quiche_conn_recv(long connAddr, long bufAddr, int bufLen, long infoAddr, long instantNanos);
 
     /**
-     * See <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L262">quiche_conn_send</a>.
+     * See <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L426">
+     *     quiche_conn_send_at</a>.
      */
     static native int quiche_conn_send(long connAddr, long outAddr, int outLen, long infoAddr, long instantNanos);
 
@@ -490,7 +497,8 @@ final class Quiche {
 
     /**
      * See
-     * <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L294">quiche_conn_on_timeout</a>.
+     * <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L536">
+     *     quiche_conn_on_timeout_at</a>.
      */
     static native void quiche_conn_on_timeout(long connAddr, long instantNanos);
 
