@@ -619,8 +619,8 @@ static jlongArray netty_quiche_conn_peer_transport_params(JNIEnv* env, jclass cl
 
 
 
-static jlong netty_quiche_conn_timeout_as_nanos(JNIEnv* env, jclass clazz, jlong conn) {
-    return quiche_conn_timeout_as_nanos((quiche_conn *) conn);
+static jlong netty_quiche_conn_timeout_as_nanos(JNIEnv* env, jclass clazz, jlong conn, jlong instant_nanos) {
+    return quiche_conn_timeout_as_nanos_at((quiche_conn *) conn, instant_nanos);
 }
 
 static void netty_quiche_conn_on_timeout(JNIEnv* env, jclass clazz, jlong conn, jlong instant_nanos) {
@@ -1229,7 +1229,7 @@ static const JNINativeMethod fixed_method_table[] = {
   { "quiche_conn_is_timed_out", "(J)Z", (void *) netty_quiche_conn_is_timed_out },
   { "quiche_conn_stats", "(J)[J", (void *) netty_quiche_conn_stats },
   { "quiche_conn_peer_transport_params", "(J)[J", (void *) netty_quiche_conn_peer_transport_params },
-  { "quiche_conn_timeout_as_nanos", "(J)J", (void *) netty_quiche_conn_timeout_as_nanos },
+  { "quiche_conn_timeout_as_nanos", "(JJ)J", (void *) netty_quiche_conn_timeout_as_nanos },
   { "quiche_conn_on_timeout", "(JJ)V", (void *) netty_quiche_conn_on_timeout },
   { "quiche_conn_readable", "(J)J", (void *) netty_quiche_conn_readable },
   { "quiche_conn_writable", "(J)J", (void *) netty_quiche_conn_writable },

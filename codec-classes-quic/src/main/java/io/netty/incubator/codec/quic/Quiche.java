@@ -483,9 +483,10 @@ final class Quiche {
 
     /**
      * See
-     * <a href="https://github.com/cloudflare/quiche/blob/0.6.0/include/quiche.h#L288">quiche_conn_timeout_as_nanos</a>.
+     * <a href="https://github.com/cloudflare/quiche/blob/master/quiche/include/quiche.h#L521">
+     *     quiche_conn_timeout_as_nanos_at</a>.
      */
-    static native long quiche_conn_timeout_as_nanos(long connAddr);
+    static native long quiche_conn_timeout_as_nanos(long connAddr, long instantNanos);
 
     /**
      * See

@@ -2070,7 +2070,7 @@ final class QuicheQuicChannel extends AbstractChannel implements QuicChannel {
                 unsafe().close(newPromise());
                 return;
             }
-            long nanos = Quiche.quiche_conn_timeout_as_nanos(conn.address());
+            long nanos = Quiche.quiche_conn_timeout_as_nanos(conn.address(), eventLoopInstantNanos());
             if (nanos < 0 || nanos == Long.MAX_VALUE) {
                 // No timeout needed.
                 cancel();
