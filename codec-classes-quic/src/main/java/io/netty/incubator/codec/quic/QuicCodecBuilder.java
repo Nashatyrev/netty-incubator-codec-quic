@@ -33,6 +33,7 @@ import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
  */
 public abstract class QuicCodecBuilder<B extends QuicCodecBuilder<B>> {
     private final boolean server;
+    private QuicheConfig quicheConfig;
     private Boolean grease;
     private Long maxIdleTimeout;
     private Long maxRecvUdpPayloadSize;
@@ -73,6 +74,7 @@ public abstract class QuicCodecBuilder<B extends QuicCodecBuilder<B>> {
     QuicCodecBuilder(QuicCodecBuilder<B> builder) {
         Quic.ensureAvailability();
         this.server = builder.server;
+        this.quicheConfig = builder.quicheConfig;
         this.grease = builder.grease;
         this.maxIdleTimeout = builder.maxIdleTimeout;
         this.maxRecvUdpPayloadSize = builder.maxRecvUdpPayloadSize;
@@ -120,6 +122,22 @@ public abstract class QuicCodecBuilder<B extends QuicCodecBuilder<B>> {
      */
     public final B flushStrategy(FlushStrategy flushStrategy) {
         this.flushStrategy = Objects.requireNonNull(flushStrategy, "flushStrategy");
+        return self();
+    }
+
+    /**
+     * Sets the {@link QuicheConfig} instance to use instead of constructing one from this builder's settings.
+     *
+     * Once set, any quiche-related builder options are ignored during {@link #build()}.
+     *
+     * The provided {@link QuicheConfig} remains owned by the caller until the codec is built successfully. After a
+     * successful build, the created codec is responsible for releasing it.
+     *
+     * @param quicheConfig the config instance to use.
+     * @return             the instance itself.
+     */
+    public final B quicheConfig(QuicheConfig quicheConfig) {
+        this.quicheConfig = Objects.requireNonNull(quicheConfig, "quicheConfig");
         return self();
     }
 
@@ -483,13 +501,25 @@ public abstract class QuicCodecBuilder<B extends QuicCodecBuilder<B>> {
         return self();
     }
 
-    private QuicheConfig createConfig() {
+    /**
+     * Creates the {@link QuicheConfig} that will be used when building the codec.
+     *
+     * If a custom {@link QuicheConfig} was supplied via {@link #quicheConfig(QuicheConfig)}, that instance is
+     * returned. Otherwise a new one is created from this builder's current settings.
+     *
+     * @return the {@link QuicheConfig} to use.
+     */
+    public QuicheConfig createConfig() {
+        if (quicheConfig != null) {
+            return quicheConfig;
+        }
         return new QuicheConfig(version, grease,
                 maxIdleTimeout, maxSendUdpPayloadSize, maxRecvUdpPayloadSize, initialMaxData,
                 initialMaxStreamDataBidiLocal, initialMaxStreamDataBidiRemote,
                 initialMaxStreamDataUni, initialMaxStreamsBidi, initialMaxStreamsUni,
                 ackDelayExponent, maxAckDelay, disableActiveMigration, enableHystart, discoverPmtu,
-                congestionControlAlgorithm, initialCongestionWindowPackets, recvQueueLen, sendQueueLen, activeConnectionIdLimit, statelessResetToken);
+                congestionControlAlgorithm, initialCongestionWindowPackets, recvQueueLen, sendQueueLen,
+                activeConnectionIdLimit, statelessResetToken);
     }
 
     /**
@@ -510,10 +540,13 @@ public abstract class QuicCodecBuilder<B extends QuicCodecBuilder<B>> {
     public final ChannelHandler build() {
         validate();
         QuicheConfig config = createConfig();
+        boolean created = config != quicheConfig;
         try {
             return build(config, sslEngineProvider, sslTaskExecutor, localConnIdLength, flushStrategy);
         } catch (Throwable cause) {
-            config.free();
+            if (created) {
+                config.free();
+            }
             throw cause;
         }
     }
